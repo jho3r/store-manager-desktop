@@ -1,0 +1,15 @@
+.info {
+    fill: #0d6efd;
+}
+
+.error {
+    fill: #dc3545;
+}
+
+.success {
+    fill: #198754;
+}
+
+.warning {
+    fill: #ffc107;
+}

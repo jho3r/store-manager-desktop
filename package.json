@@ -1,18 +1,55 @@
 {
   "name": "store-manager-desktop",
   "version": "0.1.0",
+  "description": "Desktop app mainly for sells management",
   "private": true,
+  "main": "main/main.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "next:start": "next start",
+    "next:dev": "next dev",
+    "next:build": "next build",
+    "next:lint": "next lint",
+    "electron": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
+  "keywords": [
+    "Nodejs",
+    "Electron",
+    "React",
+    "Nextjs"
+  ],
+  "author": "Jhoer Perez <jho3r>",
+  "license": "MIT",
   "dependencies": {
-    "eslint": "8.47.0",
-    "eslint-config-next": "13.4.19",
+    "bootstrap": "^5.2.3",
+    "bootstrap-icons": "^1.10.3",
+    "electron": "^26.1.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "joi": "^17.9.2",
     "next": "13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.4.1",
+    "@electron-forge/maker-deb": "^6.4.1",
+    "@electron-forge/maker-rpm": "^6.4.1",
+    "@electron-forge/maker-squirrel": "^6.4.1",
+    "@electron-forge/maker-zip": "^6.4.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.4.1",
+    "concurrently": "^8.2.1",
+    "eslint": "^8.30.0",
+    "eslint-config-next": "^13.1.1",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.6.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.31.11"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
   }
 }
