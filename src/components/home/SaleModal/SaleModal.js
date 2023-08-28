@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Modal from '@components/common/Modal/Modal'
 import styles from './SaleModal.module.css'
 
@@ -14,19 +14,28 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
   const [allowSave, setAllowSave] = useState(false)
   const [blockEntries, setBlockEntries] = useState(true)
   const [owed, setOwed] = useState(false)
+  const [commentNeeded, setCommentNeeded] = useState(false)
+  const [debtor, setDebtor] = useState('')
+
+  useEffect(() => {
+    if (show) {
+      setFilteredProducts([])
+      setSelectedProduct(null)
+      setFilterString('')
+      setShowDropdown(false)
+      setQuantity(1)
+      setComment('')
+      setPrice(0)
+      setHiddenComment({})
+      setAllowSave(false)
+      setOwed(false)
+      setBlockEntries(true)
+      setCommentNeeded(false)
+      setDebtor('')
+    }
+  }, [show])
 
   const handleClose = () => {
-    setFilterString('')
-    setSelectedProduct(null)
-    setShowDropdown(false)
-    setFilteredProducts([])
-    setQuantity(1)
-    setComment('')
-    setPrice(0)
-    setHiddenComment({})
-    setAllowSave(false)
-    setBlockEntries(true)
-    setOwed(false)
     if (onClose) {
       onClose()
     }
@@ -40,12 +49,21 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
       hiddenComment,
       price: Number(price),
       time: new Date(),
-      owed
+      owed,
+      debtor
     }
     if (quantity < 1 || price < 1) {
       return
     }
-    console.log('sale: ', sale)
+
+    if (owed && !debtor) {
+      return
+    }
+
+    if ((Number(price) !== Number(selectedProduct.price)) && !comment) {
+      setCommentNeeded(true)
+      return
+    }
 
     if (onSave) {
       onSave(sale)
@@ -94,6 +112,11 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
   const handleCommentChange = (event) => {
     const value = event.target.value
     setComment(value)
+  }
+
+  const handleDebtorChange = (event) => {
+    const value = event.target.value
+    setDebtor(value)
   }
 
   const handleHiddenCommentChange = (type, value) => {
@@ -195,7 +218,7 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             aria-describedby='priceInputFeedback'
           />
           <label htmlFor="priceInput">Precio</label>
-          <div id="priceInputFeedback" class="invalid-feedback">Precio mayor a 0</div>
+          <div id="priceInputFeedback" className="invalid-feedback">Precio mayor a 0</div>
         </div>
         <div className="form-floating mb-3">
           <input
@@ -209,7 +232,7 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             aria-describedby='quantityInputFeedback'
           />
           <label htmlFor="quantityInput">Cantidad</label>
-          <div id="quantityInputFeedback" class="invalid-feedback">Cantidad mayor a 0</div>
+          <div id="quantityInputFeedback" className="invalid-feedback">Cantidad mayor a 0</div>
         </div>
         <div className="form-floating mb-3">
           <input
@@ -228,7 +251,7 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             className="form-check-input"
             id="owedInput"
             placeholder="Comentario"
-            value={owed}
+            checked={owed}
             onChange={handleOwedChange}
             disabled={blockEntries}
           />
@@ -237,14 +260,30 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
         <div className="form-floating mb-3">
           <input
             type="text"
-            className="form-control"
+            className={`form-control ${(owed && !debtor) ? 'is-invalid' : ''}`}
+            id="debtorInput"
+            placeholder="Deudor"
+            value={debtor}
+            onChange={handleDebtorChange}
+            disabled={!owed || blockEntries}
+            aria-describedby='debtorInputFeedback'
+          />
+          <label htmlFor="debtorInput">Deudor</label>
+          <div id="debtorInputFeedback" className="invalid-feedback">Quien debe ?</div>
+        </div>
+        <div className="form-floating mb-3">
+          <input
+            type="text"
+            className={`form-control ${(commentNeeded && !comment) ? 'is-invalid' : 'is-valid'}`}
             id="commentInput"
             placeholder="Comentario"
             value={comment}
             onChange={handleCommentChange}
             disabled={blockEntries}
+            aria-describedby='commentInputFeedback'
           />
           <label htmlFor="commentInput">Comentario</label>
+          <div id="commentInputFeedback" className="invalid-feedback">Por que se cambio el precio ?</div>
         </div>
       </form>
     </Modal>

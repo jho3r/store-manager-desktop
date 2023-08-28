@@ -1,0 +1,9 @@
+.footer {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.price {
+    font-size: 1.2rem;
+    font-weight: 700;
+}

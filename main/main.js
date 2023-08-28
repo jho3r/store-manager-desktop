@@ -3,6 +3,14 @@ const { MenuManager } = require('./menu/menu')
 const path = require('path')
 const config = require('../config/config')
 const { getProductsHandler } = require('./handlers/products.handler')
+const { createFolderIfNotExists } = require('./storage/file_manager')
+
+const createNeededFolders = () => {
+  const folderPaths = [config.dataPath, config.salesPath]
+  folderPaths.forEach((folderPath) => {
+    createFolderIfNotExists(folderPath)
+  })
+}
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -15,9 +23,9 @@ const createWindow = () => {
   win.show()
 
   // production
-  // win.loadURL(`file://${path.join(__dirname, 'build/index.html')}`)
+  win.loadURL(`file://${path.join(__dirname, '../build/index.html')}`)
   // develop
-  win.loadURL('http://localhost:3000')
+  // win.loadURL('http://localhost:3000')
 
   const menuManager = new MenuManager(win)
   menuManager.setupMenu()
@@ -26,6 +34,7 @@ const createWindow = () => {
 app.whenReady().then(() => {
   ipcMain.handle(config.productGetTopic, getProductsHandler)
   createWindow()
+  createNeededFolders()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

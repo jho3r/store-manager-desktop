@@ -1,6 +1,6 @@
 import styles from './HomeHeader.module.css'
 
-const HomeHeader = ({ salesDate, onDateChange, total }) => {
+const HomeHeader = ({ salesDate, onDateChange, total, owed }) => {
   const handleDateChange = (event) => {
     if (onDateChange) {
       onDateChange(event.target.value)
@@ -10,10 +10,10 @@ const HomeHeader = ({ salesDate, onDateChange, total }) => {
   return (
     <div className={styles.header}>
       <div className="row">
-        <div className="col-5">
+        <div className="col-8">
           <h1 className={styles.title}>Ventas Minimercado Luna</h1>
         </div>
-        <div className="col-3">
+        <div className="col-4 text-end">
           <input
             type="date"
             className="form-control"
@@ -23,9 +23,6 @@ const HomeHeader = ({ salesDate, onDateChange, total }) => {
             min="2023-06-07"
             max={new Date().toISOString().slice(0, 10)}
           />
-        </div>
-        <div className="col-4 text-end">
-          <h1 className={styles.title}>Total: ${total}</h1>
         </div>
         <div className="col-12">
           <hr />

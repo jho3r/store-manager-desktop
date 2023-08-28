@@ -1,138 +1,6 @@
 import styles from './SalesTable.module.css'
 
 const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
-  sales = [
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    },
-    {
-      id: 1,
-      barcode: '123456789',
-      name: 'Papas',
-      quantity: 2,
-      price: 2500,
-      total: 5000,
-      owed: 0,
-      comment: 'Comentario'
-    }
-  ]
   const handleSaleDelete = (sale) => {
     if (onSaleDelete) {
       onSaleDelete(sale)
@@ -163,33 +31,37 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
               </tr>
             </thead>
             <tbody>
-              {sales.map((sale) => (
-                <tr key={sale.id}>
-                  <th scope="row">{sale.barcode}</th>
-                  <td>{sale.name}</td>
-                  <td>{sale.quantity}</td>
-                  <td>${sale.price}</td>
-                  <td>${sale.total}</td>
-                  <td>{sale.owed ? 'Si' : 'No'}</td>
-                  <td>{sale.comment}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-primary me-2"
-                      onClick={() => handleSaleEdit(sale)}
-                    >
-                      <i className="bi bi-pencil-fill"></i>
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger"
-                      onClick={() => handleSaleDelete(sale)}
-                    >
-                      <i className="bi bi-trash-fill"></i>
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {sales.map((sale) =>
+                sale.deleted
+                  ? null
+                  : (
+                  <tr key={sale.id}>
+                    <th scope="row">{sale.barcode}</th>
+                    <td>{sale.name}</td>
+                    <td>{sale.quantity}</td>
+                    <td>${sale.price}</td>
+                    <td>${sale.total}</td>
+                    <td>{sale.owed ? 'Si' : 'No'}</td>
+                    <td>{sale.comment}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-primary me-2"
+                        onClick={() => handleSaleEdit(sale)}
+                      >
+                        <i className="bi bi-pencil-fill"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => handleSaleDelete(sale)}
+                      >
+                        <i className="bi bi-trash-fill"></i>
+                      </button>
+                    </td>
+                  </tr>
+                    )
+              )}
             </tbody>
           </table>
         </div>

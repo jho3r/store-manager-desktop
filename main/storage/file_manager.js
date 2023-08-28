@@ -67,8 +67,19 @@ const readProductsFromJSONFile = async (filePath) => {
   }
 }
 
+async function createFolderIfNotExists (folderPath) {
+  try {
+    await fs.access(folderPath) // Check if the folder exists
+  } catch (error) {
+    // Folder doesn't exist, so create it
+    await fs.mkdir(folderPath)
+    console.log('Folder created successfully.')
+  }
+}
+
 module.exports = {
   readProductsFromFile,
   writeProductsToJSONFile,
-  readProductsFromJSONFile
+  readProductsFromJSONFile,
+  createFolderIfNotExists
 }

@@ -6,6 +6,7 @@ import styles from './container.module.css'
 import SaleModal from '@components/home/SaleModal/SaleModal'
 import SalesTable from '@components/home/SalesTable/SalesTable'
 import HomeHeader from '@components/home/HomeHeader/HomeHeader'
+import HomeFooter from '@components/home/HomeFooter/HomeFooter'
 import config from '@config/config'
 
 const HomeContainer = () => {
@@ -17,6 +18,7 @@ const HomeContainer = () => {
   )
   const [sales, setSales] = useState([])
   const [total, setTotal] = useState(0)
+  const [owed, setOwed] = useState(0)
 
   useEffect(() => {
     const getProducts = async () => {
@@ -68,8 +70,43 @@ const HomeContainer = () => {
     setShowSaleModal(false)
   }
 
-  const handleAddSale = () => {
-    console.log('Sale added')
+  /**
+   * @param {Object} sale
+   * @param {Object} sale.product
+   * @param {Number} sale.product.id
+   * @param {String} sale.product.barcode
+   * @param {String} sale.product.name
+   * @param {Number} sale.product.price
+   * @param {Number} sale.product.stock
+   * @param {Number} sale.quantity
+   * @param {String} sale.comment
+   * @param {String} sale.hiddenComment
+   * @param {Number} sale.price
+   * @param {Date} sale.time
+   * @param {Boolean} sale.owed
+   * @param {String} sale.debtor
+   */
+  const handleAddSale = (sale) => {
+    const newSale = {
+      id: sales.length + 1,
+      barcode: sale.product.barcode,
+      name: sale.product.name,
+      quantity: sale.quantity,
+      price: sale.price,
+      time: sale.time,
+      total: sale.price * sale.quantity,
+      owed: sale.owed,
+      comment: sale.comment,
+      hiddenComment: sale.hiddenComment,
+      productID: sale.product.id,
+      deleted: false,
+      debtor: sale.debtor
+    }
+    setSales(prevSales => [...prevSales, newSale])
+    const newTotal = sale.owed ? total : newSale.total + total
+    const newOwed = sale.owed ? owed + newSale.total : owed
+    setOwed(newOwed)
+    setTotal(newTotal)
   }
 
   const handleDateChange = (value) => {
@@ -78,8 +115,9 @@ const HomeContainer = () => {
 
   return (
     <div className={styles.container}>
-      <HomeHeader salesDate={salesDate} onDateChange={handleDateChange} total={total} />
+      <HomeHeader salesDate={salesDate} onDateChange={handleDateChange}/>
       <SalesTable sales={sales} />
+      <HomeFooter total={total} owed={owed} />
       <FloatingActionButton onClick={handleFloatingButtonClick} />
       <SaleModal
         products={products}
