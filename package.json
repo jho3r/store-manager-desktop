@@ -9,10 +9,9 @@
     "next:dev": "next dev",
     "next:build": "next build",
     "next:lint": "next lint",
-    "next:export": "next export",
-    "electron": "electron .",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "electron:dev": "electron .",
+    "electron:package": "electron-forge package",
+    "electron:make": "electron-forge make"
   },
   "keywords": [
     "Nodejs",

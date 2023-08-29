@@ -1,10 +1,20 @@
+import { useState } from 'react'
+import Modal from '@/components/common/Modal/Modal'
 import styles from './SalesTable.module.css'
 
-const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
+const SalesTable = ({ sales, onSaleDelete, onSaleEdit, showActions = true }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [saleDeleteCallback, setSaleDeleteCallback] = useState(null)
+
   const handleSaleDelete = (sale) => {
-    if (onSaleDelete) {
-      onSaleDelete(sale)
+    const handleSaleDelete = (saleId) => {
+      if (onSaleDelete) {
+        setShowDeleteModal(false)
+        onSaleDelete(saleId)
+      }
     }
+    setShowDeleteModal(true)
+    setSaleDeleteCallback(() => () => handleSaleDelete(sale.id))
   }
 
   const handleSaleEdit = (sale) => {
@@ -37,7 +47,7 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
                   : (
                   <tr key={sale.id}>
                     <th scope="row">{sale.barcode}</th>
-                    <td>{sale.name}</td>
+                    <td>{sale.name.substr(0, 18)}...</td>
                     <td>{sale.quantity}</td>
                     <td>${sale.price}</td>
                     <td>${sale.total}</td>
@@ -48,6 +58,7 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
                         type="button"
                         className="btn btn-primary me-2"
                         onClick={() => handleSaleEdit(sale)}
+                        disabled={!showActions}
                       >
                         <i className="bi bi-pencil-fill"></i>
                       </button>
@@ -55,6 +66,7 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
                         type="button"
                         className="btn btn-outline-danger"
                         onClick={() => handleSaleDelete(sale)}
+                        disabled={!showActions}
                       >
                         <i className="bi bi-trash-fill"></i>
                       </button>
@@ -66,6 +78,16 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit }) => {
           </table>
         </div>
       </div>
+      <Modal
+        title="Eliminar venta"
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onAction={saleDeleteCallback}
+        actionText="Eliminar"
+        allowSave={true}
+      >
+        <p>¿Está seguro que desea eliminar esta venta?</p>
+      </Modal>
     </div>
   )
 }

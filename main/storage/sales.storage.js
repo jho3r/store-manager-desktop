@@ -1,5 +1,10 @@
 const fs = require('fs').promises
 
+/**
+ * Read sales from a JSON file
+ * @param {string} salesFilePath - path to the sales file
+ * @returns {Promise<Array>}
+ */
 const readSalesFromJSONFile = async (salesFilePath) => {
   try {
     const data = await fs.readFile(salesFilePath, 'utf8')

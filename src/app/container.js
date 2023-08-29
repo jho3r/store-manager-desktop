@@ -19,6 +19,7 @@ const HomeContainer = () => {
   const [sales, setSales] = useState([])
   const [total, setTotal] = useState(0)
   const [owed, setOwed] = useState(0)
+  const [editable, setEditable] = useState(true)
 
   useEffect(() => {
     const getProducts = async () => {
@@ -71,7 +72,6 @@ const HomeContainer = () => {
   useEffect(() => {
     const getSales = async () => {
       const { data: storedSales = [], error } = await window.electronApi?.getSales(salesDate)
-      console.log('storedSales', storedSales, error)
       if (error) {
         setNotification({
           title: 'Sales Load',
@@ -155,16 +155,38 @@ const HomeContainer = () => {
   }
 
   const handleDateChange = (value) => {
-    console.log('handleDateChange', value)
     setSalesDate(value)
+    if (value === new Date().toLocaleDateString('en-CA')) {
+      setEditable(true)
+    } else {
+      setEditable(false)
+    }
+  }
+
+  const handleSaleDelete = async (saleId) => {
+    const { data: deletedSale, error } = await window.electronApi?.deleteSale(saleId, salesDate)
+    if (error) {
+      setNotification({
+        title: 'Delete Sale',
+        message: `Error eliminando venta: ${error}`,
+        level: 'error',
+        show: true
+      })
+      return
+    }
+    setSales(prevSales => prevSales.map(sale => sale.id === deletedSale.id ? { ...sale, deleted: true } : sale))
+    const newTotal = deletedSale.owed ? total : total - deletedSale.total
+    const newOwed = deletedSale.owed ? owed - deletedSale.total : owed
+    setOwed(newOwed)
+    setTotal(newTotal)
   }
 
   return (
     <div className={styles.container}>
       <HomeHeader salesDate={salesDate} onDateChange={handleDateChange}/>
-      <SalesTable sales={sales} />
+      <SalesTable sales={sales} onSaleDelete={handleSaleDelete} showActions={editable} />
       <HomeFooter total={total} owed={owed} />
-      <FloatingActionButton onClick={handleFloatingButtonClick} />
+      <FloatingActionButton onClick={handleFloatingButtonClick} show={editable} />
       <SaleModal
         products={products}
         onClose={handleSaleModalClose}

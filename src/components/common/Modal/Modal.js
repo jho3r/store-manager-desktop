@@ -6,7 +6,8 @@ const Modal = ({
   title,
   allowSave = false,
   onClose,
-  onAction
+  onAction,
+  actionText = 'Guardar'
 }) => {
   const handleClose = () => {
     if (onClose) {
@@ -33,7 +34,7 @@ const Modal = ({
               Cerrar
             </button>
             <button type="button" className="btn btn-primary" onClick={handleAction} disabled={!allowSave}>
-              Guardar
+              {actionText}
             </button>
           </div>
         </div>
