@@ -1,38 +1,74 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const { MenuManager } = require('./menu/menu')
+const isDev = require('electron-is-dev')
 const path = require('path')
-const config = require('../config/config')
+const { MenuManager } = require('./menu/menu')
 const { getProductsHandler } = require('./handlers/products.handler')
-const { createFolderIfNotExists } = require('./storage/file_manager')
+const { addSaleHandler, getSalesHandler } = require('./handlers/sales.handler')
+const { createFolderIfNotExists } = require('./utils/file_manager')
+const config = require('../config/config')
 
 const createNeededFolders = () => {
   const folderPaths = [config.dataPath, config.salesPath]
-  folderPaths.forEach((folderPath) => {
-    createFolderIfNotExists(folderPath)
+  folderPaths.forEach(async (folderPath) => {
+    await createFolderIfNotExists(folderPath)
   })
 }
 
+const getDevConfig = () => {
+  const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
+
+  // Calculate the dimensions for the bottom right quarter
+  const windowWidth = Math.round(width / 2)
+  const windowHeight = Math.round(height / 2)
+  const windowX = width - windowWidth
+  const windowY = height - windowHeight
+
+  return {
+    width: windowWidth,
+    height: windowHeight,
+    x: windowX,
+    y: windowY
+  }
+}
+
+const getProdConfig = () => {
+  return {
+    show: false
+  }
+}
+
 const createWindow = () => {
+  const configs = isDev ? getDevConfig() : getProdConfig()
+
   const win = new BrowserWindow({
-    show: false,
+    ...configs,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-  win.maximize()
-  win.show()
 
-  // production
-  win.loadURL(`file://${path.join(__dirname, '../build/index.html')}`)
-  // develop
-  // win.loadURL('http://localhost:3000')
+  if (isDev) {
+    console.log('Running in development')
+    win.loadURL('http://localhost:3000')
+  } else {
+    console.log('Running in production')
+    win.maximize()
+    win.show()
+    win.loadURL(`file://${path.join(__dirname, '../build/index.html')}`)
+  }
 
   const menuManager = new MenuManager(win)
   menuManager.setupMenu()
 }
 
-app.whenReady().then(() => {
+const setupIpc = () => {
   ipcMain.handle(config.productGetTopic, getProductsHandler)
+  ipcMain.handle(config.addSaleTopic, addSaleHandler)
+  ipcMain.handle(config.getSalesTopic, getSalesHandler)
+}
+
+app.whenReady().then(() => {
+  setupIpc()
   createWindow()
   createNeededFolders()
 

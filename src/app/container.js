@@ -14,7 +14,7 @@ const HomeContainer = () => {
   const [showSaleModal, setShowSaleModal] = useState(false)
   const [notification, setNotification] = useState(null)
   const [salesDate, setSalesDate] = useState(
-    new Date().toISOString().slice(0, 10)
+    new Date().toLocaleDateString('en-CA')
   )
   const [sales, setSales] = useState([])
   const [total, setTotal] = useState(0)
@@ -22,7 +22,16 @@ const HomeContainer = () => {
 
   useEffect(() => {
     const getProducts = async () => {
-      const storedProducts = await window.electronApi?.getProducts()
+      const { data: storedProducts = [], error } = await window.electronApi?.getProducts()
+      if (error) {
+        setNotification({
+          title: 'Products Load',
+          message: `Error cargando productos: ${error}`,
+          level: 'error',
+          show: true
+        })
+        return
+      }
       const otherProduct = {
         id: 0,
         barcode: '0',
@@ -46,9 +55,6 @@ const HomeContainer = () => {
         level: data.error ? 'error' : 'success',
         show: true
       })
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
     }
 
     getProducts()
@@ -61,6 +67,36 @@ const HomeContainer = () => {
       )
     }
   }, [])
+
+  useEffect(() => {
+    const getSales = async () => {
+      const { data: storedSales = [], error } = await window.electronApi?.getSales(salesDate)
+      console.log('storedSales', storedSales, error)
+      if (error) {
+        setNotification({
+          title: 'Sales Load',
+          message: `No se pudieron cargar las ventas del dia: ${error}`,
+          level: 'warning',
+          show: true
+        })
+      }
+      const total = storedSales.reduce((acc, sale) => {
+        const partial = (sale.owed || sale.deleted) ? 0 : sale.total
+        return acc + partial
+      }, 0)
+
+      const owed = storedSales.reduce((acc, sale) => {
+        const partial = (sale.owed && !sale.deleted) ? sale.total : 0
+        return acc + partial
+      }, 0)
+
+      setSales(storedSales)
+      setTotal(total)
+      setOwed(owed)
+    }
+
+    getSales()
+  }, [salesDate])
 
   const handleFloatingButtonClick = () => {
     setShowSaleModal(true)
@@ -86,9 +122,8 @@ const HomeContainer = () => {
    * @param {Boolean} sale.owed
    * @param {String} sale.debtor
    */
-  const handleAddSale = (sale) => {
-    const newSale = {
-      id: sales.length + 1,
+  const handleAddSale = async (sale) => {
+    const newSaleObj = {
       barcode: sale.product.barcode,
       name: sale.product.name,
       quantity: sale.quantity,
@@ -102,6 +137,16 @@ const HomeContainer = () => {
       deleted: false,
       debtor: sale.debtor
     }
+    const { data: newSale, error } = await window.electronApi?.addSale(newSaleObj, salesDate)
+    if (error) {
+      setNotification({
+        title: 'Add Sale',
+        message: `Error agregando venta: ${error}`,
+        level: 'error',
+        show: true
+      })
+      return
+    }
     setSales(prevSales => [...prevSales, newSale])
     const newTotal = sale.owed ? total : newSale.total + total
     const newOwed = sale.owed ? owed + newSale.total : owed
@@ -110,6 +155,7 @@ const HomeContainer = () => {
   }
 
   const handleDateChange = (value) => {
+    console.log('handleDateChange', value)
     setSalesDate(value)
   }
 
@@ -130,6 +176,7 @@ const HomeContainer = () => {
         message={notification?.message}
         show={notification?.show}
         level={notification?.level}
+        onClose={() => setNotification(null)}
       />
     </div>
   )

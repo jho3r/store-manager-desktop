@@ -1,20 +1,49 @@
+import { useEffect, useState } from 'react'
 import styles from './Toast.module.css'
 
 const Toast = ({ title, message, show, level, onClose }) => {
+  const [isMouseOver, setIsMouseOver] = useState(false)
+  const [timer, setTimer] = useState(null)
+
+  useEffect(() => {
+    if (show) {
+      if (timer) {
+        clearTimeout(timer)
+      }
+      setTimer(
+        setTimeout(() => {
+          if (!isMouseOver) {
+            handleClose()
+          }
+        }, 5000)
+      )
+    }
+  }, [show, isMouseOver])
+
   const handleClose = () => {
     if (onClose) {
       onClose()
     }
   }
 
+  const handleMouseEnter = () => {
+    setIsMouseOver(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsMouseOver(false)
+  }
+
   return (
     <div className="toast-container position-fixed bottom-0 start-0 p-3">
       <div
         id="liveToast"
-        className={`toast ${show ? 'show' : ''}`}
+        className={`toast ${show ? styles.show : styles.hide}`}
         role="alert"
         aria-live="assertive"
         aria-atomic="true"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="toast-header">
           <svg

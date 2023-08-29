@@ -2,7 +2,7 @@ const { dialog } = require('electron')
 const {
   readProductsFromFile,
   writeProductsToJSONFile
-} = require('../storage/file_manager')
+} = require('../storage/product.storage')
 const config = require('../../config/config')
 const path = require('path')
 

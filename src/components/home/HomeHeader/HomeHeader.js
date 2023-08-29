@@ -21,7 +21,7 @@ const HomeHeader = ({ salesDate, onDateChange, total, owed }) => {
             value={salesDate}
             onChange={handleDateChange}
             min="2023-06-07"
-            max={new Date().toISOString().slice(0, 10)}
+            max={new Date().toLocaleDateString('en-CA')}
           />
         </div>
         <div className="col-12">

@@ -13,3 +13,34 @@
 .warning {
     fill: #ffc107;
 }
+
+.show {
+    display: block !important;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.show:hover {
+    background-color: #f8f9fa;
+}
+
+.hide {
+    animation: slideOut 0.5s ease-in-out;
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(100%);
+    }
+}
