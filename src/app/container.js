@@ -20,10 +20,12 @@ const HomeContainer = () => {
   const [total, setTotal] = useState(0)
   const [owed, setOwed] = useState(0)
   const [editable, setEditable] = useState(true)
+  const [refresh, setRefresh] = useState(false)
 
   useEffect(() => {
     const getProducts = async () => {
-      const { data: storedProducts = [], error } = await window.electronApi?.getProducts()
+      const { data: storedProducts = [], error } =
+        await window.electronApi?.getProducts()
       if (error) {
         setNotification({
           title: 'Products Load',
@@ -71,7 +73,8 @@ const HomeContainer = () => {
 
   useEffect(() => {
     const getSales = async () => {
-      const { data: storedSales = [], error } = await window.electronApi?.getSales(salesDate)
+      const { data: storedSales = [], error } =
+        await window.electronApi?.getSales(salesDate)
       if (error) {
         setNotification({
           title: 'Sales Load',
@@ -81,12 +84,12 @@ const HomeContainer = () => {
         })
       }
       const total = storedSales.reduce((acc, sale) => {
-        const partial = (sale.owed || sale.deleted) ? 0 : sale.total
+        const partial = sale.owed || sale.deleted ? 0 : sale.total
         return acc + partial
       }, 0)
 
       const owed = storedSales.reduce((acc, sale) => {
-        const partial = (sale.owed && !sale.deleted) ? sale.total : 0
+        const partial = sale.owed && !sale.deleted ? sale.total : 0
         return acc + partial
       }, 0)
 
@@ -96,7 +99,7 @@ const HomeContainer = () => {
     }
 
     getSales()
-  }, [salesDate])
+  }, [salesDate, refresh])
 
   const handleFloatingButtonClick = () => {
     setShowSaleModal(true)
@@ -135,9 +138,14 @@ const HomeContainer = () => {
       hiddenComment: sale.hiddenComment,
       productID: sale.product.id,
       deleted: false,
-      debtor: sale.debtor
+      debtor: sale.debtor,
+      originalPrice: sale.product.price,
+      editedAt: null
     }
-    const { data: newSale, error } = await window.electronApi?.addSale(newSaleObj, salesDate)
+    const { data: newSale, error } = await window.electronApi?.addSale(
+      newSaleObj,
+      salesDate
+    )
     if (error) {
       setNotification({
         title: 'Add Sale',
@@ -147,7 +155,7 @@ const HomeContainer = () => {
       })
       return
     }
-    setSales(prevSales => [...prevSales, newSale])
+    setSales((prevSales) => [...prevSales, newSale])
     const newTotal = sale.owed ? total : newSale.total + total
     const newOwed = sale.owed ? owed + newSale.total : owed
     setOwed(newOwed)
@@ -164,7 +172,10 @@ const HomeContainer = () => {
   }
 
   const handleSaleDelete = async (saleId) => {
-    const { data: deletedSale, error } = await window.electronApi?.deleteSale(saleId, salesDate)
+    const { data: deletedSale, error } = await window.electronApi?.deleteSale(
+      saleId,
+      salesDate
+    )
     if (error) {
       setNotification({
         title: 'Delete Sale',
@@ -174,19 +185,49 @@ const HomeContainer = () => {
       })
       return
     }
-    setSales(prevSales => prevSales.map(sale => sale.id === deletedSale.id ? { ...sale, deleted: true } : sale))
+    setSales((prevSales) =>
+      prevSales.map((sale) =>
+        sale.id === deletedSale.id ? { ...sale, deleted: true } : sale
+      )
+    )
     const newTotal = deletedSale.owed ? total : total - deletedSale.total
     const newOwed = deletedSale.owed ? owed - deletedSale.total : owed
     setOwed(newOwed)
     setTotal(newTotal)
   }
 
+  const handleSaleEdit = async (sale) => {
+    const { error } = await window.electronApi?.editSale(
+      sale,
+      salesDate
+    )
+    if (error) {
+      setNotification({
+        title: 'Edit Sale',
+        message: `Error editando venta: ${error}`,
+        level: 'error',
+        show: true
+      })
+      return
+    }
+    setRefresh(!refresh)
+  }
+
   return (
     <div className={styles.container}>
-      <HomeHeader salesDate={salesDate} onDateChange={handleDateChange}/>
-      <SalesTable sales={sales} onSaleDelete={handleSaleDelete} showActions={editable} />
+      <HomeHeader salesDate={salesDate} onDateChange={handleDateChange} />
+      <SalesTable
+        sales={sales}
+        onSaleDelete={handleSaleDelete}
+        onSaleEdit={handleSaleEdit}
+        showActions={editable}
+        products={products}
+      />
       <HomeFooter total={total} owed={owed} />
-      <FloatingActionButton onClick={handleFloatingButtonClick} show={editable} />
+      <FloatingActionButton
+        onClick={handleFloatingButtonClick}
+        show={editable}
+      />
       <SaleModal
         products={products}
         onClose={handleSaleModalClose}

@@ -1,10 +1,19 @@
 import { useState } from 'react'
 import Modal from '@/components/common/Modal/Modal'
+import SaleModal from '@/components/home/SaleModal/SaleModal'
 import styles from './SalesTable.module.css'
 
-const SalesTable = ({ sales, onSaleDelete, onSaleEdit, showActions = true }) => {
+const SalesTable = ({
+  sales,
+  onSaleDelete,
+  onSaleEdit,
+  showActions = true,
+  products
+}) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [saleDeleteCallback, setSaleDeleteCallback] = useState(null)
+  const [showSaleModal, setShowSaleModal] = useState(false)
+  const [saleToEdit, setSaleToEdit] = useState(null)
 
   const handleSaleDelete = (sale) => {
     const handleSaleDelete = (saleId) => {
@@ -18,6 +27,16 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit, showActions = true }) => 
   }
 
   const handleSaleEdit = (sale) => {
+    setSaleToEdit(sale)
+    setShowSaleModal(true)
+  }
+
+  const handleSaleModalClose = () => {
+    setShowSaleModal(false)
+    setSaleToEdit(null)
+  }
+
+  const handleSaveSale = (sale) => {
     if (onSaleEdit) {
       onSaleEdit(sale)
     }
@@ -88,6 +107,13 @@ const SalesTable = ({ sales, onSaleDelete, onSaleEdit, showActions = true }) => 
       >
         <p>¿Está seguro que desea eliminar esta venta?</p>
       </Modal>
+      <SaleModal
+        products={products}
+        onClose={handleSaleModalClose}
+        onSave={handleSaveSale}
+        show={showSaleModal}
+        sale={saleToEdit}
+      />
     </div>
   )
 }

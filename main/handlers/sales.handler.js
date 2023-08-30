@@ -19,6 +19,8 @@ const { readSalesFromJSONFile, writeSalesToJSONFile } = require('../storage/sale
  * @param {number} sale.productID
  * @param {boolean} sale.deleted
  * @param {string} sale.debtor
+ * @param {number} sale.originalPrice
+ * @param {string} sale.editedAt
  * @param {string} date - date of the sale in the format YYYY-MM-DD
  * @returns
  */
@@ -115,8 +117,31 @@ const deleteSaleHandler = async (event, saleId, saleDate) => {
   }
 }
 
+const updateSaleHandler = async (event, sale, saleDate) => {
+  try {
+    const salesDate = new Date(saleDate)
+    const year = salesDate.getUTCFullYear()
+    const month = salesDate.getUTCMonth() + 1 // months from 1-12
+    const day = salesDate.getUTCDate()
+    const salesFileName = `${year}-${month}-${day}.json`
+    const salesFilePath = path.join(config.salesPath, year.toString(), month.toString(), salesFileName)
+    const sales = await readSalesFromJSONFile(salesFilePath)
+    const saleIndex = sales.findIndex(saleItem => saleItem.id === sale.id)
+    if (saleIndex === -1) {
+      return { error: 'Sale not found' }
+    }
+    sales[saleIndex] = sale
+    await writeSalesToJSONFile(salesFilePath, sales)
+    return { data: sales[saleIndex] }
+  } catch (error) {
+    console.log('ipcMain.handle error: ', error)
+    return { error: error.message }
+  }
+}
+
 module.exports = {
   addSaleHandler,
   getSalesHandler,
-  deleteSaleHandler
+  deleteSaleHandler,
+  updateSaleHandler
 }

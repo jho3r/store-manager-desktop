@@ -3,7 +3,7 @@ const isDev = require('electron-is-dev')
 const path = require('path')
 const { MenuManager } = require('./menu/menu')
 const { getProductsHandler } = require('./handlers/products.handler')
-const { addSaleHandler, getSalesHandler, deleteSaleHandler } = require('./handlers/sales.handler')
+const { addSaleHandler, getSalesHandler, deleteSaleHandler, updateSaleHandler } = require('./handlers/sales.handler')
 const { createFolderIfNotExists } = require('./utils/file_manager')
 const config = require('../config/config')
 
@@ -66,6 +66,7 @@ const setupIpc = () => {
   ipcMain.handle(config.addSaleTopic, addSaleHandler)
   ipcMain.handle(config.getSalesTopic, getSalesHandler)
   ipcMain.handle(config.deleteSaleTopic, deleteSaleHandler)
+  ipcMain.handle(config.editSaleTopic, updateSaleHandler)
 }
 
 app.whenReady().then(() => {
