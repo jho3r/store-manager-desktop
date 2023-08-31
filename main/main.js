@@ -3,7 +3,13 @@ const isDev = require('electron-is-dev')
 const path = require('path')
 const { MenuManager } = require('./menu/menu')
 const { getProductsHandler } = require('./handlers/products.handler')
-const { addSaleHandler, getSalesHandler, deleteSaleHandler, updateSaleHandler } = require('./handlers/sales.handler')
+const {
+  addSaleHandler,
+  getSalesHandler,
+  deleteSaleHandler,
+  updateSaleHandler,
+  downloadSalesAsCSVHandler
+} = require('./handlers/sales.handler')
 const { createFolderIfNotExists } = require('./utils/file_manager')
 const config = require('../config/config')
 
@@ -15,7 +21,8 @@ const createNeededFolders = () => {
 }
 
 const getDevConfig = () => {
-  const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize
+  const { width, height } =
+    require('electron').screen.getPrimaryDisplay().workAreaSize
 
   // Calculate the dimensions for the bottom right quarter
   const windowWidth = Math.round(width / 2)
@@ -67,6 +74,7 @@ const setupIpc = () => {
   ipcMain.handle(config.getSalesTopic, getSalesHandler)
   ipcMain.handle(config.deleteSaleTopic, deleteSaleHandler)
   ipcMain.handle(config.editSaleTopic, updateSaleHandler)
+  ipcMain.handle(config.downloadSalesTopic, downloadSalesAsCSVHandler)
 }
 
 app.whenReady().then(() => {

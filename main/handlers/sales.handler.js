@@ -2,6 +2,7 @@ const path = require('path')
 const config = require('../../config/config')
 const { createFolderIfNotExists } = require('../utils/file_manager')
 const { readSalesFromJSONFile, writeSalesToJSONFile } = require('../storage/sales.storage')
+const { convertArrayToCsv } = require('../utils/converters')
 
 /**
  * Add a sale to the sales file
@@ -11,16 +12,16 @@ const { readSalesFromJSONFile, writeSalesToJSONFile } = require('../storage/sale
  * @param {string} sale.name
  * @param {number} sale.quantity
  * @param {number} sale.price
- * @param {Date} sale.time
+ * @param {Date} sale.createdAt
  * @param {number} sale.total
  * @param {boolean} sale.owed
  * @param {string} sale.comment
  * @param {Object} sale.hiddenComment
- * @param {number} sale.productID
+ * @param {number} sale.productId
  * @param {boolean} sale.deleted
  * @param {string} sale.debtor
  * @param {number} sale.originalPrice
- * @param {string} sale.editedAt
+ * @param {string} sale.updatedAt
  * @param {string} date - date of the sale in the format YYYY-MM-DD
  * @returns
  */
@@ -139,9 +140,36 @@ const updateSaleHandler = async (event, sale, saleDate) => {
   }
 }
 
+/**
+ * Download sales as CSV
+ * @param {Object} event
+ * @param {string} date - date of the sale in the format YYYY-MM-DD
+ * @returns {Promise<Object>}
+ */
+const downloadSalesAsCSVHandler = async (event, date) => {
+  try {
+    const salesDate = new Date(date)
+    const year = salesDate.getUTCFullYear()
+    const month = salesDate.getUTCMonth() + 1 // months from 1-12
+    const day = salesDate.getUTCDate()
+    const salesFileName = `${year}-${month}-${day}.json`
+    const salesFilePath = path.join(config.salesPath, year.toString(), month.toString(), salesFileName)
+    const sales = await readSalesFromJSONFile(salesFilePath)
+    const csv = convertArrayToCsv(sales)
+    return { data: csv }
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return { error: 'No sales found' }
+    }
+    console.log('ipcMain.handle error: ', error)
+    return { error: error.message }
+  }
+}
+
 module.exports = {
   addSaleHandler,
   getSalesHandler,
   deleteSaleHandler,
-  updateSaleHandler
+  updateSaleHandler,
+  downloadSalesAsCSVHandler
 }

@@ -7,5 +7,6 @@ module.exports = {
   addSaleTopic: 'add-sale',
   getSalesTopic: 'get-sales',
   deleteSaleTopic: 'delete-sale',
-  editSaleTopic: 'edit-sale'
+  editSaleTopic: 'edit-sale',
+  downloadSalesTopic: 'download-sales'
 }

@@ -35,7 +35,7 @@ const SaleModal = ({ products, show, onClose, onSave, sale = null }) => {
     }
 
     if (sale) {
-      const product = products.find((product) => product.id === sale.productID)
+      const product = products.find((product) => product.id === sale.productId)
       setSelectedProduct(product)
       setQuantity(sale.quantity)
       setComment(sale.comment)
@@ -65,7 +65,7 @@ const SaleModal = ({ products, show, onClose, onSave, sale = null }) => {
         price: Number(price),
         owed,
         debtor,
-        editedAt: new Date(),
+        updatedAt: new Date(),
         total: Number(price) * Number(quantity)
       }
     } else {
@@ -75,7 +75,8 @@ const SaleModal = ({ products, show, onClose, onSave, sale = null }) => {
         comment,
         hiddenComment,
         price: Number(price),
-        time: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         owed,
         debtor
       }

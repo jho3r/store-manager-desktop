@@ -121,9 +121,10 @@ const HomeContainer = () => {
    * @param {String} sale.comment
    * @param {String} sale.hiddenComment
    * @param {Number} sale.price
-   * @param {Date} sale.time
+   * @param {Date} sale.createdAt
    * @param {Boolean} sale.owed
    * @param {String} sale.debtor
+   * @param {Date} sale.updatedAt
    */
   const handleAddSale = async (sale) => {
     const newSaleObj = {
@@ -131,16 +132,16 @@ const HomeContainer = () => {
       name: sale.product.name,
       quantity: sale.quantity,
       price: sale.price,
-      time: sale.time,
+      createdAt: sale.createdAt,
       total: sale.price * sale.quantity,
       owed: sale.owed,
       comment: sale.comment,
       hiddenComment: sale.hiddenComment,
-      productID: sale.product.id,
+      productId: sale.product.id,
       deleted: false,
       debtor: sale.debtor,
       originalPrice: sale.product.price,
-      editedAt: null
+      updatedAt: sale.updatedAt
     }
     const { data: newSale, error } = await window.electronApi?.addSale(
       newSaleObj,
@@ -197,10 +198,7 @@ const HomeContainer = () => {
   }
 
   const handleSaleEdit = async (sale) => {
-    const { error } = await window.electronApi?.editSale(
-      sale,
-      salesDate
-    )
+    const { error } = await window.electronApi?.editSale(sale, salesDate)
     if (error) {
       setNotification({
         title: 'Edit Sale',
@@ -213,9 +211,38 @@ const HomeContainer = () => {
     setRefresh(!refresh)
   }
 
+  const handleFileDownload = async () => {
+    const { data: csvString, error } = await window.electronApi?.downloadSales(
+      salesDate
+    )
+    if (error) {
+      setNotification({
+        title: 'Download Sales',
+        message: `Error descargando ventas: ${error}`,
+        level: 'error',
+        show: true
+      })
+      return
+    }
+    const blob = new Blob([csvString], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+
+    a.setAttribute('hidden', '')
+    a.setAttribute('href', url)
+    a.setAttribute('download', `ventas-${salesDate}.csv`)
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
   return (
     <div className={styles.container}>
-      <HomeHeader salesDate={salesDate} onDateChange={handleDateChange} />
+      <HomeHeader
+        salesDate={salesDate}
+        onDateChange={handleDateChange}
+        onDownload={handleFileDownload}
+      />
       <SalesTable
         sales={sales}
         onSaleDelete={handleSaleDelete}
