@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Modal from '@components/common/Modal/Modal'
 import styles from './SaleModal.module.css'
 
-const SaleModal = ({ products, show, onClose, onSave }) => {
+const SaleModal = ({ products, show, onClose, onSave, sale = null }) => {
   const [filteredProducts, setFilteredProducts] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [filterString, setFilterString] = useState('')
@@ -33,7 +33,19 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
       setCommentNeeded(false)
       setDebtor('')
     }
-  }, [show])
+
+    if (sale) {
+      const product = products.find((product) => product.id === sale.productId)
+      setSelectedProduct(product)
+      setQuantity(sale.quantity)
+      setComment(sale.comment)
+      setPrice(sale.price)
+      setAllowSave(true)
+      setOwed(sale.owed)
+      setDebtor(sale.debtor)
+      setBlockEntries(false)
+    }
+  }, [show, sale, products])
 
   const handleClose = () => {
     if (onClose) {
@@ -42,15 +54,32 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
   }
 
   const handleSave = () => {
-    const sale = {
-      product: selectedProduct,
-      quantity: Number(quantity),
-      comment,
-      hiddenComment,
-      price: Number(price),
-      time: new Date(),
-      owed,
-      debtor
+    let saleToSave = {}
+
+    if (sale) {
+      saleToSave = {
+        ...sale,
+        quantity: Number(quantity),
+        comment,
+        hiddenComment,
+        price: Number(price),
+        owed,
+        debtor,
+        updatedAt: new Date(),
+        total: Number(price) * Number(quantity)
+      }
+    } else {
+      saleToSave = {
+        product: selectedProduct,
+        quantity: Number(quantity),
+        comment,
+        hiddenComment,
+        price: Number(price),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        owed,
+        debtor
+      }
     }
     if (quantity < 1 || price < 1) {
       return
@@ -60,13 +89,13 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
       return
     }
 
-    if ((Number(price) !== Number(selectedProduct.price)) && !comment) {
+    if (Number(price) !== Number(selectedProduct.price) && !comment) {
       setCommentNeeded(true)
       return
     }
 
     if (onSave) {
-      onSave(sale)
+      onSave(saleToSave)
     }
     handleClose()
   }
@@ -168,6 +197,7 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             placeholder="Buscar producto"
             value={filterString}
             onChange={handleFilterChange}
+            disabled={!!sale}
           />
           <label htmlFor="filterInput">Buscar producto</label>
         </div>
@@ -215,10 +245,12 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             value={price}
             onChange={handlePriceChange}
             disabled={blockEntries}
-            aria-describedby='priceInputFeedback'
+            aria-describedby="priceInputFeedback"
           />
           <label htmlFor="priceInput">Precio</label>
-          <div id="priceInputFeedback" className="invalid-feedback">Precio mayor a 0</div>
+          <div id="priceInputFeedback" className="invalid-feedback">
+            Precio mayor a 0
+          </div>
         </div>
         <div className="form-floating mb-3">
           <input
@@ -229,10 +261,12 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             value={quantity}
             onChange={handleQuantityChange}
             disabled={blockEntries}
-            aria-describedby='quantityInputFeedback'
+            aria-describedby="quantityInputFeedback"
           />
           <label htmlFor="quantityInput">Cantidad</label>
-          <div id="quantityInputFeedback" className="invalid-feedback">Cantidad mayor a 0</div>
+          <div id="quantityInputFeedback" className="invalid-feedback">
+            Cantidad mayor a 0
+          </div>
         </div>
         <div className="form-floating mb-3">
           <input
@@ -255,35 +289,43 @@ const SaleModal = ({ products, show, onClose, onSave }) => {
             onChange={handleOwedChange}
             disabled={blockEntries}
           />
-          <label htmlFor="owedInput" className="form-check-label">Debe</label>
+          <label htmlFor="owedInput" className="form-check-label">
+            Debe
+          </label>
         </div>
         <div className="form-floating mb-3">
           <input
             type="text"
-            className={`form-control ${(owed && !debtor) ? 'is-invalid' : ''}`}
+            className={`form-control ${owed && !debtor ? 'is-invalid' : ''}`}
             id="debtorInput"
             placeholder="Deudor"
             value={debtor}
             onChange={handleDebtorChange}
             disabled={!owed || blockEntries}
-            aria-describedby='debtorInputFeedback'
+            aria-describedby="debtorInputFeedback"
           />
           <label htmlFor="debtorInput">Deudor</label>
-          <div id="debtorInputFeedback" className="invalid-feedback">Quien debe ?</div>
+          <div id="debtorInputFeedback" className="invalid-feedback">
+            Quien debe ?
+          </div>
         </div>
         <div className="form-floating mb-3">
           <input
             type="text"
-            className={`form-control ${(commentNeeded && !comment) ? 'is-invalid' : 'is-valid'}`}
+            className={`form-control ${
+              commentNeeded && !comment ? 'is-invalid' : 'is-valid'
+            }`}
             id="commentInput"
             placeholder="Comentario"
             value={comment}
             onChange={handleCommentChange}
             disabled={blockEntries}
-            aria-describedby='commentInputFeedback'
+            aria-describedby="commentInputFeedback"
           />
           <label htmlFor="commentInput">Comentario</label>
-          <div id="commentInputFeedback" className="invalid-feedback">Por que se cambio el precio ?</div>
+          <div id="commentInputFeedback" className="invalid-feedback">
+            Por que se cambio el precio ?
+          </div>
         </div>
       </form>
     </Modal>

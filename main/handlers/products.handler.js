@@ -1,15 +1,23 @@
 const path = require('path')
 const config = require('../../config/config')
-const { readProductsFromJSONFile } = require('../storage/file_manager')
+const { readProductsFromJSONFile } = require('../storage/product.storage')
 
+/**
+ * Get products from the products file
+ * @param {Object} event
+ * @returns {Promise<Object>}
+ */
 const getProductsHandler = async (event) => {
   try {
-    const productsFilePath = path.join(config.dataPath, config.productsFileName)
+    const productsFilePath = path.join(
+      config.dataPath,
+      config.productsFileName
+    )
     const products = await readProductsFromJSONFile(productsFilePath)
-    return products
+    return { data: products }
   } catch (error) {
     console.log('ipcMain.handle error: ', error)
-    return []
+    return { error: error.message }
   }
 }
 
