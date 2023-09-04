@@ -165,11 +165,12 @@ const HomeContainer = () => {
 
   const handleDateChange = (value) => {
     setSalesDate(value)
-    if (value === new Date().toLocaleDateString('en-CA')) {
-      setEditable(true)
-    } else {
-      setEditable(false)
-    }
+    setEditable(true)
+    // if (value === new Date().toLocaleDateString('en-CA')) {
+    //   setEditable(true)
+    // } else {
+    //   setEditable(false)
+    // }
   }
 
   const handleSaleDelete = async (saleId) => {

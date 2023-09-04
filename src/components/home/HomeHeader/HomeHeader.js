@@ -6,8 +6,10 @@ const HomeHeader = ({ salesDate, onDateChange, onDownload }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setMaxDate(new Date().toLocaleDateString('en-CA'))
-    }, 60000)
+      const newDate = new Date().toLocaleDateString('en-CA')
+      console.log(newDate)
+      setMaxDate(newDate)
+    }, 30000)
 
     return () => clearInterval(interval)
   }, [])
